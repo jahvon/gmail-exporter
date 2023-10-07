@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/gmail-sender-collection.iml" filepath="$PROJECT_DIR$/.idea/gmail-sender-collection.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../gmail-exporter/.idea/gmail-exporter.iml" filepath="$PROJECT_DIR$/../gmail-exporter/.idea/gmail-exporter.iml" />
     </modules>
   </component>
 </project>

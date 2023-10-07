@@ -1,4 +1,4 @@
-module gmail-sender-collection
+module gmail-exporter
 
 go 1.21
 

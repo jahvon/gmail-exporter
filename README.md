@@ -1,4 +1,4 @@
-# Gmail to Google Sheets - Sender Collection
+# Gmail to Google Sheets Exporter
 
 This script allows you to fetch email data from your Gmail account and store it in a Google Sheets document. 
 The script is written in Go and uses the Gmail API and Google Sheets API for integration.
