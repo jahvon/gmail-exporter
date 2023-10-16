@@ -68,6 +68,7 @@ func clearColumns(srv *sheets.Service, spreadsheetID, sheetName string) {
 	appendDataToSheet(srv, spreadsheetID, sheetName, header, headerLocation)
 }
 
+//nolint:gocognit
 func fetchAndAppendEmailData(srv *gmail.Service, sheetsSrv *sheets.Service, spreadsheetID, sheetName string) {
 	processedEmails := make(map[string]bool)
 	maxResults := int64(500)
@@ -121,7 +122,6 @@ func fetchAndAppendEmailData(srv *gmail.Service, sheetsSrv *sheets.Service, spre
 			if !processedEmails[identifier] {
 				batch = append(batch, []interface{}{from, replyTo, standardizedSender, dateReceived, subject})
 				processedEmails[identifier] = true
-
 			}
 		}
 		appendDataToSheet(sheetsSrv, spreadsheetID, sheetName, batch, appendStartLocation)
@@ -132,7 +132,6 @@ func fetchAndAppendEmailData(srv *gmail.Service, sheetsSrv *sheets.Service, spre
 		}
 		pageToken = messagesResponse.NextPageToken
 	}
-
 }
 
 func appendDataToSheet(srv *sheets.Service, spreadsheetID, sheetName string, data [][]interface{}, loc cellLocation) {
@@ -171,10 +170,6 @@ func newCellLocation(column string, row int) cellLocation {
 
 func (c cellLocation) String() string {
 	return fmt.Sprintf("%s%d", c.column, c.row)
-}
-
-func (c cellLocation) next() cellLocation {
-	return cellLocation{c.column, c.row + 1}
 }
 
 func (c cellLocation) jump(rows int) cellLocation {

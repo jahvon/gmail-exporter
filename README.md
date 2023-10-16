@@ -16,7 +16,21 @@ Note: This scripts expects the OAuth 2.0 credentials file to be at `~/.gsc-cred.
 
 ## Usage
 
-```sh
-SHEET_ID=<your-sheet-id> go run main.go
-```
+**Required Flow Secrets**
 
+- `gmailExporterSheetID`: The ID of the Google Sheets document to write the data to. This can be pulled from the sheet's url.
+
+**Available Flow Executable Commands**
+
+```shell
+# Open project in IDE
+flow open goland
+flow open vscode 
+
+# Run utility program
+flow run program
+
+# Development Commands
+flow run pre-commit
+flow run intall-deps
+```

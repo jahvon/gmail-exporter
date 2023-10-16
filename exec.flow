@@ -1,0 +1,71 @@
+tags:
+  - go
+  - util
+executables:
+# Open Repo
+  - type: open
+    name: goland
+    tags:
+      - git
+    description: Open this util's source code repo in GoLand
+    spec:
+      uri:  //
+      app: GoLand
+  - type: open
+    name: vscode
+    tags:
+      - git
+    description: Open this util's source code repo in VSCode
+    spec:
+      uri:  //
+      app: Visual Studio Code
+
+# Run Util
+  - type: run
+    name: program
+    description: Run the utility program
+    spec:
+      cmd: go run .
+      params:
+        - text: Template
+          envKey: UTIL_NAME
+        - secretRef: gmailExporterSheetID
+          envKey: SHEET_ID
+
+# Run Development Flows
+  - type: run
+    name: pre-commit
+    aliases:
+        - pc
+    tags:
+      - internal
+    description: Lint and run test suite
+    spec:
+      cmd: |
+        echo "Running go formatting and linting"
+        go fmt ./...
+        golangci-lint run ./... --fix
+        echo "Running test suite"
+        go test ./... -race
+  - type: run
+    name: install-deps
+    aliases:
+        - id
+    tags:
+      - internal
+    description: Lint and run test suite
+    spec:
+      cmd: |
+        echo "Installing dependencies"
+        go mod tidy
+        go install github.com/spf13/cobra-cli@v1.3.0
+        go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
+  - type: run
+    name: sync
+    description: Pull the latest version of this util
+    spec:
+      dir: //
+      cmd: |
+        echo "Upgrading to latest version"
+        git checkout main
+        git pull
