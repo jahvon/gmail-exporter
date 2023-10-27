@@ -2,12 +2,12 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"os"
 	"regexp"
 
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 	"google.golang.org/api/sheets/v4"
@@ -16,29 +16,24 @@ import (
 var CredsFile = "credentials.json"
 
 func main() {
-	// Set up your authentication credentials
 	ctx := context.Background()
-	credsFile := os.Getenv("CREDS_FILE_PATH")
-	if credsFile == "" {
-		credsFile = CredsFile
-	}
+	login := flag.Bool("login-only", false, "Authenticate with Google and exit")
+	flag.Parse()
 
-	b, err := os.ReadFile(credsFile)
-	if err != nil {
-		log.Fatalf("Unable to read client secret file: %v", err)
+	if login != nil && *login {
+		// Trigger auth flow by deleting token file
+		_ = os.Remove("token.json")
+		getAuthorizedClient()
+		return
 	}
-
-	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope, sheets.SpreadsheetsScope)
-	if err != nil {
-		log.Fatalf("Unable to parse client secret file to config: %v", err)
-	}
-	client := getClient(config)
 
 	spreadsheetID := os.Getenv("SHEET_ID")
 	if spreadsheetID == "" {
 		log.Fatalf("No SHEET_ID specified")
 	}
 	sheetName := "Inbox"
+
+	client := getAuthorizedClient()
 	sheetsService, err := sheets.NewService(ctx, option.WithHTTPClient(client))
 	if err != nil {
 		log.Fatalf("Failed to create Sheets service: %v", err)
@@ -55,6 +50,7 @@ func main() {
 }
 
 func clearColumns(srv *sheets.Service, spreadsheetID, sheetName string) {
+	fmt.Println("Clearing columns A:E")
 	rangeToClear := sheetName + "!A:E"
 	clearRequest := &sheets.ClearValuesRequest{}
 	_, err := srv.Spreadsheets.Values.Clear(spreadsheetID, rangeToClear, clearRequest).Do()
@@ -70,6 +66,7 @@ func clearColumns(srv *sheets.Service, spreadsheetID, sheetName string) {
 
 //nolint:gocognit
 func fetchAndAppendEmailData(srv *gmail.Service, sheetsSrv *sheets.Service, spreadsheetID, sheetName string) {
+	fmt.Println("Fetching email data...")
 	processedEmails := make(map[string]bool)
 	maxResults := int64(500)
 	appendStartLocation := newCellLocation("A", 2)
@@ -136,6 +133,7 @@ func fetchAndAppendEmailData(srv *gmail.Service, sheetsSrv *sheets.Service, spre
 
 func appendDataToSheet(srv *sheets.Service, spreadsheetID, sheetName string, data [][]interface{}, loc cellLocation) {
 	rangeToAppend := sheetName + "!" + loc.String()
+	fmt.Printf("Appending data to sheet %s\n", rangeToAppend)
 	valueRange := &sheets.ValueRange{
 		Values: data,
 	}

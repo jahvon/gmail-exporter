@@ -1,15 +1,42 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
+	"strings"
 
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/gmail/v1"
+	"google.golang.org/api/sheets/v4"
 )
+
+func getAuthorizedClient() *http.Client {
+	// Set up your authentication credentials
+	credsFile := os.Getenv("CREDS_FILE_PATH")
+	if credsFile == "" {
+		credsFile = CredsFile
+	}
+
+	b, err := os.ReadFile(credsFile)
+	if err != nil {
+		log.Fatalf("Unable to read client secret file: %v", err)
+	}
+
+	config, err := google.ConfigFromJSON(b, gmail.GmailReadonlyScope, sheets.SpreadsheetsScope)
+	if err != nil {
+		log.Fatalf("Unable to parse client secret file to config: %v", err)
+	}
+	client := getClient(config)
+	fmt.Println("Successfully authenticated.")
+	return client
+}
 
 // Retrieve a token, saves the token, then returns the generated client.
 func getClient(config *oauth2.Config) *http.Client {
@@ -31,9 +58,27 @@ func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	fmt.Printf("Go to the following link in your browser then type the "+
 		"authorization code: \n%v\n", authURL)
 
-	var authCode string
-	if _, err := fmt.Scan(&authCode); err != nil {
-		log.Fatalf("Unable to read authorization code: %v", err)
+	var input, authCode string
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter authorization code or redirected URL: ")
+	input, err := reader.ReadString('\n')
+	if err != nil {
+		log.Fatalf("Unable to read input: %v", err)
+	}
+
+	if strings.HasPrefix(input, "http") {
+		redirecturl, err := url.Parse(strings.TrimSpace(input))
+		if err != nil {
+			log.Fatalf("Unable to parse URL: %v", err)
+		}
+		query := redirecturl.Query()
+		authCode = query.Get("code")
+	} else {
+		authCode = input
+	}
+
+	if authCode == "" {
+		log.Fatalf("Unable to parse authorization code from input: %v", input)
 	}
 
 	tok, err := config.Exchange(context.TODO(), authCode)

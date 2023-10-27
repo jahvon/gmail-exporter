@@ -1,1 +1,5 @@
-executablePreferences: {}
+displayName: Gmail Inbox->Sheets Exporter
+description: Go utility program for exporting Gmail data into a Google Sheet
+git:
+    enabled: true
+    pullOnSync: true

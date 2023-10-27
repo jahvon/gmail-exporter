@@ -1,0 +1,26 @@
+tags:
+  - shortcut
+executables:
+  - type: open
+    name: goland
+    tags:
+      - ide
+    description: Open gmail-exporter's source code repo in GoLand
+    spec:
+      uri:  //
+      app: GoLand
+  - type: open
+    name: vscode
+    tags:
+      - ide
+    description: Open gmail-exporter's source code repo in VSCode
+    spec:
+      uri:  //
+      app: Visual Studio Code
+  - type: open
+    name: github
+    tags:
+      - git
+    description: Open gmail-exporter's GitHub repo in a browser
+    spec:
+      uri: https://github.com/jahvon/gmail-exporter
